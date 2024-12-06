@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8">
+    <title>Configuração do produto</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2.0">
+    <link rel="stylesheet" type="text/css" href="/css/style.css?version=23/12/2021-D">
+    <meta name="WS_tokens" content="<%= json %>">
+    <meta name="urlRetorno" content="<%= urlRetorno %>">
+  </head>
+  <body>
+    <div class="container">
+      <div class="topContent"><h2>Configure o produto</h2><h4></h4></div>
+      <div class="list" id="categories"></div>
+      <div id="breadcrumb"><span>Categoria selecionada:</span> </div>
+			<div id="configuracao" class="none">
+				<h4>Selecione uma condição <span class="sub sub-optional"></h4>
+        <div>
+          <input type="radio" id="none" name="conditional" value="none" oninput="obj['condition'] ? delete obj['condition'] : null" checked/>
+          <label for="none">Não se aplica</label>
+        </div>
+				<div>
+					<input type="radio" id="new" name="conditional" value="new" oninput="obj['condition'] = this.value"/>
+					<label for="new">Novo</label>
+				</div>
+				<div>
+					<input type="radio" id="refurbished" name="conditional" value="refurbished" oninput="obj['condition'] = this.value"/>
+					<label for="refurbished">Recondicionado</label>
+				</div>
+				<div>
+					<input type="radio" id="used" name="conditional" value="used" oninput="obj['condition'] = this.value"/>
+					<label for="used">Usado</label>
+				</div>
+        <h4>Selecione uma marca <span class="sub sub-mandatory"></span></h4>
+        <div>
+          <input list="brands" name="brand" id="brand">
+            <datalist id="" class="brands-list">
+
+            </datalist>
+        </div>
+        <div>
+
+        </div>
+			</div>
+      <div class="loading-container none">
+        <div class="load"></div>
+      </div>
+      <div class="btns">
+        <!-- <button type="button" class="grey" onclick="pularStep()">Pular</button> -->
+        <button type="button" class="blue" onclick="brandConditionList()" id="nextStep" disabled>Avançar</button>
+      </div>
+    </div>
+
+    <script src="/js/request.js"></script>
+  </body>
+</html>

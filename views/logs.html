@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="logs" content="<%=json %>">
+    <title>Logs </title>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        border-radius: 0;
+        border: none
+    }
+
+    .count-container,
+    .pagination-container,
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        align-content: center
+    }
+
+    body {
+        width: 100vw;
+        height: 100vh;
+        flex-direction: column
+    }
+
+    input,
+    input:active,
+    input:focus,
+    input:hover {
+        border: solid .1rem #000;
+        outline: 0
+    }
+
+    input[type=number] {
+        -webkit-appearance: textfield;
+        -moz-appearance: textfield;
+        appearance: textfield
+    }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none
+    }
+
+    a {
+        font: normal 1rem monospace;
+        color: black;
+        border: .1vw solid black;
+        margin: .1rem 0;
+        width: 100%;
+        padding: 1.5rem 0;
+        text-decoration: none
+    }
+
+    a:hover {
+        font-weight: 700
+    }
+
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        width: fit-content;
+        min-width: fit-content
+    }
+
+    .links {
+        border-radius: .75rem;
+        min-width: 30vw;
+        padding: 1rem;
+        text-align: center;
+        width: fit-content;
+        height: fit-content;
+        display: grid;
+    }
+
+    .options {
+        user-select: none;
+        width: 100%;
+        justify-content: space-evenly;
+        display: flex
+    }
+
+    #page-number,
+    #page-number:focus {
+        user-select: none;
+        width: 2rem;
+        text-align: center;
+        font: bold 1.5rem monospace;
+        border: none
+    }
+
+    .pagination-container div {
+        user-select: none;
+        cursor: pointer;
+        font: normal 1.5rem monospace;
+        transform: scaleY(1.5)
+    }
+
+    .pagination-container div:hover {
+        font-weight: 700
+    }
+
+    .count-container,
+    .delete-button {
+        width: 50%
+    }
+
+    .delete-button {
+        margin-left: 1rem;
+        font: normal 1rem monospace;
+        cursor: pointer
+    }
+
+    .delete-button:hover {
+        font-weight: 700
+    }
+
+    .count-container {
+        user-select: none;
+        font: normal 1rem monospace;
+        justify-content: end;
+        margin-right: 1rem
+    }
+
+    .count {
+        font: bold 1.25rem monospace
+    }
+
+    table {
+        border-collapse: collapse;
+    }
+
+    th {
+        padding: .75rem 0;
+    }
+
+    tr {
+        font: normal 1.2rem monospace;
+        border: .01vw solid black;
+    }
+
+    td {
+        padding: .5rem 3rem;
+    }
+
+    td:not(:first-child) {
+        border-left: .01vw solid black;
+    }
+
+    thead tr {
+        background-color: white;
+    }
+
+    tr:hover {
+        background-color: rgb(209, 209, 209);
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    thead tr:hover {
+        background-color: white;
+    }
+</style>
+
+<body>
+    <div class="container">
+        <div class="pagination-container">
+                <div onclick="pageChange()"><</div>
+                <input id="page-number" type="number" min="1" max="99" value="new URL(window.location).searchParams.get('page') || 1">
+                <div onclick="pageChange(true)">></div>
+            </div>
+            <div class="links">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Title</th>
+                            <th scope="col">Day</th>
+                            <th class="hour-switch" scope="col">Hour <span>></span></th>
+                        </tr>
+                    </thead>
+                    <tbody> </tbody>
+                </table>
+            </div>
+            <div class="options">
+                <div class="delete-button" onclick="eraseAll()">Deletar Todos </div>
+                <div class="count-container">Número de Logs:&nbsp;&nbsp; <span class="count">
+                        <%=numberOfLogs %>
+                    </span> </div>
+            </div>
+        </div>
+</body>
+<script>
+    let page = new URL(window.location).searchParams.get("page") || 1;
+    function pageLoad() {
+        document.querySelector('meta[name="logs"]').getAttribute("content").split(",").forEach(e => { 
+            let [t, a, n] = [e.split("_")[0], e.split("_")[1], e.split("_")[2].split(".")[0]]; 
+                t = t.split("-")[2] + "-" + t.split("-")[1] + "-" + t.split("-")[0]; 
+            let o = document.createElement("tr"); 
+                o.setAttribute("class", "row")
+                o.setAttribute("onclick", `window.location = '/logs?log=${e}'`)
+                o.innerHTML = `<td>${n}</td><td>${t}</td><td>${a}</td>`, document.querySelector("tbody").append(o) 
+        })
+    }
+     
+    function pageChange(e) { 
+        if (e && page == parseInt(document.querySelector(".count").innerHTML) / 20) return;
+        let t = e ? parseInt(page) + 1 : 1 == page ? 1 : parseInt(page) - 1; page != t && (window.location.href = "/logs?page=" + t) 
+    } 
+    
+    async function eraseAll() { 
+        let e = await fetch("/logs/zerar"); 
+        (await e.json()).sucess && window.location.reload(!0) 
+    } 
+        
+    window.addEventListener('load', () => {
+        pageLoad()
+        document.querySelector("#page-number").value = page;
+
+        let urlToUse = new URL(window.location);
+        let styleHourSwitch = urlToUse.searchParams.get('decrease') == 'false' | null ? '90deg' : '-90deg'
+            document.querySelector('.hour-switch > span').setAttribute('style', `transform: rotateZ(${styleHourSwitch});display:inline-flex;`); 
+    })    
+                
+    document.querySelector('.hour-switch').addEventListener('click', () => { 
+        let urlToUse = new URL(window.location); urlToUse.searchParams.set('decrease', urlToUse.searchParams.get('decrease') == 'false' | null ? 'true' : 'false'); 
+            window.location = urlToUse.href; 
+    }); 
+
+</script>
+</html>
